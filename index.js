@@ -64,7 +64,8 @@ app.post('/api/All',  (req, res) => {
             res.send(docs);    
     });
 });
-        
+
+
 app.put('/api/Update/:id', (req, res) => {
 
     var updateData = req.body;
@@ -72,7 +73,6 @@ app.put('/api/Update/:id', (req, res) => {
         if (err) {
             throw err;
         }
-        
         if (result.result.nModified == 1) {
             res.status(200).send("Data has been updated");
         }
@@ -85,12 +85,34 @@ app.put('/api/Update/:id', (req, res) => {
 app.post('/api/Create', (req, res) => {
 
     var newData = req.body;
-    db.collection('Data').insertMany([{...newData}], (err, result) => {
+    db.collection('Data').insertOne({...newData}, (err, result) => {
+        if (err) {
+            throw err;    
+        } 
+        if (result.result.n ==1 && result.result.ok == 1) {
+            res.status(200).send("New Entry Added to Database");
+        }
+        else{
+            res.status(404).send("Your Data Cannot be Inserted");
+        }
+    });
+});
+
+app.delete('/api/Delete/:id', (req, res) => { 
+
+    var id = req.params.id;
+    db.collection('Data').deleteOne({_id : id}, (err, result) => {
         if (err) {
             throw err;
-        } 
-
+        }
+        if (result.deletedCount == 1) {
+            res.status(200).send("Requested Data has been deleted");
+        }
+        else {
+            res.status(404).send("Requested Data cannot be found");
+        }
     });
+
 });
 
 
