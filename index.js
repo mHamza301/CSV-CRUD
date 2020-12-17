@@ -54,7 +54,7 @@ app.post('/api/uploadfile', upload.single("uploadfile"), (req, res) => {
     });
 });
  
-
+//A Query to check the total documents present in the database.
 app.post('/api/All',  (req, res) => {
 
     db.collection('Data').find({}).toArray((err, docs) =>{
@@ -65,7 +65,26 @@ app.post('/api/All',  (req, res) => {
     });
 });
 
+//Aggregation Method applied to the age and then summed the number of people 
+//living in a certain city for say "Karachi" OR "Lahore" etc. 
+app.post('/api/Search', (req, res) => {
 
+    db.collection('Data').aggregate(
+        [{
+            $match : {"age" : {$gt : '20'}}}, 
+        {
+            $group : {_id : {city : "$address"}, totalLiving : {$sum : 1 }}}] ,  
+            
+            (err, result) => { 
+                 if (err) {
+                    throw err;
+                 }
+            console.log(result);
+    });
+});
+
+//Takes the ID passed into the URL parameter and updates the data depending 
+//upon the previous data, if the data is already updated then nothing happens.
 app.put('/api/Update/:id', (req, res) => {
 
     var updateData = req.body;
@@ -82,6 +101,7 @@ app.put('/api/Update/:id', (req, res) => {
     });
 });
 
+//To Create the new data in the database.
 app.post('/api/Create', (req, res) => {
 
     var newData = req.body;
@@ -98,6 +118,8 @@ app.post('/api/Create', (req, res) => {
     });
 });
 
+//Deletes the data using the ID provided by the user if Invalid
+//nothing happens. 
 app.delete('/api/Delete/:id', (req, res) => { 
 
     var id = req.params.id;
